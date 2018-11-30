@@ -1,0 +1,12 @@
+﻿  main.cpp
+f:\projects\tetris\tetris\mapclass.h(136): warning C4244: аргумент: преобразование "int" в "T", возможна потеря данных
+          with
+          [
+              T=float
+          ]
+  Создание кода
+  3 of 31 functions ( 9.7%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  Создание кода завершено
+  Tetris.vcxproj -> F:\Projects\Tetris\Release\Tetris.exe
