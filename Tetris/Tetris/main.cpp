@@ -1,37 +1,41 @@
 #include <SFML/Graphics.hpp>
 #include <cstdlib>
 #include "mapCLASS.h"
-#include <Windows.h>
-
-const int standart = 250, speed = 25;
+#include "blockCLASS.h"
+#include "observerCLASS.h"
+using namespace sf;
 
 int main()
 {
-	ShowWindow(FindWindowA("ConsoleWindowClass", NULL), 0);
-	sf::RenderWindow window(sf::VideoMode(200, 400), "Tetris");
-	sf::Event event;
-	int timecheck = standart;
+	RenderWindow window(sf::VideoMode(200, 400), "Tetris");
 	window.setVerticalSyncEnabled(true);
-
+	Event event;
+	Clock clock;
+	
 	mapCLASS map(&window);
+	blockCLASS block(&map);
+	observerCLASS observer(&block, &map, &window);
+	
+	clock.restart();
+	observer.gameStart();
 	while (window.isOpen())
 	{
 		while (window.pollEvent(event))
-			if (event.type == sf::Event::Closed || (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape)) map.over();
+			if (event.type == Event::Closed || (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)) { observer.gameOver(); break; }
 	
-		window.clear();
+		
+		if (event.type == Event::KeyPressed) observer.keycheck(event.key.code, clock.getElapsedTime().asMilliseconds());
+		if (observer.timecheck(clock.getElapsedTime().asMilliseconds()))
+		{
+			observer.mapshift();
+			clock.restart();
 
-		if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Down) timecheck = speed;
-		else timecheck = standart;
-		if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Left) map.blockMove(sf::Keyboard::Left);
-		if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Right) map.blockMove(sf::Keyboard::Right);
-		if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Up) map.blockTurn();
-
-		map.shift();
-		map.draw();
-		window.display();
-		Sleep(timecheck);
+			window.clear();
+			map.draw();
+			window.display();
+		}
 	}
+	
 	system("pause");
 	return 0;
 }
