@@ -1,9 +1,12 @@
 #ifndef BLOCKCLASS_H
-#define BLOCKClASS_H
+#define BLOCKCLASS_H
 #include <SFML/Graphics.hpp>
 #include <time.h>
+#include "mapCLASS.h"
 
+using namespace sf;
 const int Nm = 21, Mm = 12;
+
 class blockCLASS
 {
 	struct partsSTRUCT
@@ -11,16 +14,23 @@ class blockCLASS
 		int X, Y;
 		bool incheckDown, incheckLeft, incheckRight;
 	};
-	int side;
-public:
-	int N = 4;
-	int type, color;
-	partsSTRUCT *parts=NULL;
 
-	blockCLASS(int type,int map[Nm][Mm])
+	mapCLASS *map;
+public:
+	partsSTRUCT *parts = NULL;
+	int N = 4;
+	int type, color, side;
+
+	blockCLASS(mapCLASS *map)
+	{
+		this->map = map;
+	}
+	
+	void newblock()
 	{
 		srand((unsigned)time(NULL));
 		color = rand() % 6 + 1;
+		type = rand() % 4 + 1;
 		parts = new partsSTRUCT[N];
 		switch (type)
 		{
@@ -58,7 +68,7 @@ public:
 			break;
 		case 3:
 			parts[0].Y = 0; parts[0].X = Mm / 2 - 1;
-			parts[1].Y = 0; parts[1].X = Mm / 2 ;			//0 1
+			parts[1].Y = 0; parts[1].X = Mm / 2;			//0 1
 			parts[2].Y = 1; parts[2].X = Mm / 2;			//  2 3
 			parts[3].Y = 1; parts[3].X = Mm / 2 + 1;
 			parts[0].incheckDown = true;
@@ -96,28 +106,34 @@ public:
 		this->type = type;
 		side = 1;
 	}
-	
-	int move(sf::Keyboard::Key key)
+
+	int move(Keyboard::Key key)
 	{
 		switch (key)
 		{
-		case sf::Keyboard::Down:
+		case Keyboard::Down:
+			for (int i = 0; i < N; i++)
+				if (parts[i].incheckDown && map->map[parts[i].Y + 1][parts[i].X] != 0) return 0;
 			for (int i = 0; i < N; i++)
 				parts[i].Y++;
 			break;
-		case sf::Keyboard::Left:
+		case Keyboard::Left:
+			for (int i = 0; i < N; i++)
+				if (parts[i].incheckLeft && map->map[parts[i].Y][parts[i].X - 1] != 0) return 0;
 			for (int i = 0; i < N; i++)
 				parts[i].X--;
 			break;
-		case sf::Keyboard::Right:
+		case Keyboard::Right:
+			for (int i = 0; i < N; i++)
+				if (parts[i].incheckRight && map->map[parts[i].Y][parts[i].X + 1] != 0) return 0;
 			for (int i = 0; i < N; i++)
 				parts[i].X++;
 			break;
 		}
-		return 0;
+		return 1;
 	}
 
-	int turn(int map[Nm][Mm])
+	void turn()
 	{
 		bool check = true;
 		switch (type)
@@ -129,7 +145,7 @@ public:
 				if (parts[0].Y < Nm - 4)
 				{
 					for (int i = parts[0].Y, j = parts[0].X; i <= parts[0].Y + 3; i++)
-						if (map[i][j] != 0) check = false;
+						if (map->map[i][j] != 0) check = false;
 				}
 				else check = false;
 				if (check)
@@ -153,7 +169,7 @@ public:
 				if (parts[0].X < Mm - 4)
 				{
 					for (int j = parts[0].X, i = parts[0].Y; j <= parts[0].X + 3; j++)
-						if (map[i][j] != 0) check = false;
+						if (map->map[i][j] != 0) check = false;
 				}
 				else check = false;
 				if (check)
@@ -180,10 +196,10 @@ public:
 			switch (side)
 			{
 			case 1:
-				
-				if (map[parts[0].X][parts[0].Y + 1] != 0) check = false;
-				if (map[parts[0].X - 1][parts[0].Y + 1] != 0) check = false;
-				if (map[parts[0].X - 1][parts[0].Y + 2] != 0) check = false;
+				if (!(parts[0].Y < Nm - 3)) check = false;
+				if (map->map[parts[0].X][parts[0].Y + 1] != 0) check = false;
+				if (map->map[parts[0].X - 1][parts[0].Y + 1] != 0) check = false;
+				if (map->map[parts[0].X - 1][parts[0].Y + 2] != 0) check = false;
 				
 				if (check)
 				{
@@ -211,9 +227,10 @@ public:
 				}
 				break;
 			case 2:
-				if (map[parts[0].X + 1][parts[0].Y] != 0) check = false;
-				if (map[parts[0].X + 1][parts[0].Y + 1] != 0) check = false;
-				if (map[parts[0].X + 2][parts[0].Y + 1] != 0) check = false;
+				if (!(parts[0].X < Mm - 3)) check = false;
+				if (map->map[parts[0].X + 1][parts[0].Y] != 0) check = false;
+				if (map->map[parts[0].X + 1][parts[0].Y + 1] != 0) check = false;
+				if (map->map[parts[0].X + 2][parts[0].Y + 1] != 0) check = false;
 				if (check)
 				{
 					parts[1].X = parts[0].X + 1;
@@ -244,10 +261,10 @@ public:
 			switch (side)
 			{
 			case 1:
-
-				if (map[parts[0].X][parts[0].Y + 1] != 0) check = false;
-				if (map[parts[0].X + 1][parts[0].Y + 1] != 0) check = false;
-				if (map[parts[0].X + 1][parts[0].Y + 2] != 0) check = false;
+				if (!(parts[0].Y < Nm - 3)) check = false;
+				if (map->map[parts[0].X][parts[0].Y + 1] != 0) check = false;
+				if (map->map[parts[0].X + 1][parts[0].Y + 1] != 0) check = false;
+				if (map->map[parts[0].X + 1][parts[0].Y + 2] != 0) check = false;
 				if (check)
 				{
 					parts[1].X = parts[0].X;
@@ -274,9 +291,10 @@ public:
 				}
 				break;
 			case 2:
-				if (map[parts[0].X - 1][parts[0].Y] != 0) check = false;
-				if (map[parts[0].X - 1][parts[0].Y + 1] != 0) check = false;
-				if (map[parts[0].X - 2][parts[0].Y + 1] != 0) check = false;
+				if (!(parts[0].X > 2)) check = false;
+				if (map->map[parts[0].X - 1][parts[0].Y] != 0) check = false;
+				if (map->map[parts[0].X - 1][parts[0].Y + 1] != 0) check = false;
+				if (map->map[parts[0].X - 2][parts[0].Y + 1] != 0) check = false;
 				if (check)
 				{
 					parts[1].X = parts[0].X - 1;
@@ -303,8 +321,8 @@ public:
 			}
 			break;
 		}
-		return 0;
 	}
+
 };
 #endif
 
