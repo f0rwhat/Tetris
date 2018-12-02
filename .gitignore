@@ -1,2 +1,4 @@
 /build
 /src/.vs
+/bin
+/.vs
