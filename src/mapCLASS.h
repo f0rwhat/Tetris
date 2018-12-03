@@ -1,7 +1,10 @@
 #ifndef MAPCLASS_H
 #define MAPCLASS_H
 #include <SFML/Graphics.hpp>
+
+
 using namespace sf;
+
 const int N = 21, M = 12;
 
 class mapCLASS

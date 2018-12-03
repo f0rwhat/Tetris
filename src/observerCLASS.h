@@ -2,8 +2,7 @@
 #define OBSERVER_H
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include <Windows.h>
-#include "blockCLASS.h"
+#include "Block.h"
 #include "mapCLASS.h"
 
 using namespace sf;
@@ -12,12 +11,12 @@ const int standart = 250, speed = 25;
 class observerCLASS
 {
 	RenderWindow *window;
-	blockCLASS *block;
+	Block *block;
 	mapCLASS *map;
 	float timelimiter = standart;
 public:
 
-	observerCLASS(blockCLASS *block, mapCLASS *map, RenderWindow *window)
+	observerCLASS(Block *block, mapCLASS *map, RenderWindow *window)
 	{
 		this->block = block;
 		this->map = map;
@@ -26,14 +25,12 @@ public:
 
 	void gameStart()
 	{
-		ShowWindow(FindWindowA("ConsoleWindowClass", NULL), 0);
-		block->newblock();
+		block->newBlock();
 		blockDraw();
 	}
 
 	void gameOver()
 	{
-		ShowWindow(FindWindowA("ConsoleWindowClass", NULL), 1);
 		std::cout << "Game Over" << std::endl;
 		window->close();
 	}
@@ -48,7 +45,7 @@ public:
 	void blockDraw()
 	{
 		for (int i = 0; i < block->N; i++)
-			map->map[block->parts[i].Y][block->parts[i].X] = block->color;
+            map->map[block->parts[i].Y][block->parts[i].X] = block->color_;
 	}
 
 	int checkOver()
@@ -70,7 +67,7 @@ public:
 				{
 					blockDraw();
 					mapstack();
-					block->newblock();
+					block->newBlock();
 					blockDraw();
 				}
 			else blockDraw();

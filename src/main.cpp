@@ -1,7 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <cstdlib>
 #include "mapCLASS.h"
-#include "blockCLASS.h"
+#include "Block.h"
 #include "observerCLASS.h"
 using namespace sf;
 
@@ -13,18 +13,25 @@ int main()
 	Clock clock;
 	
 	mapCLASS map(&window);
-	blockCLASS block(&map);
-	observerCLASS observer(&block, &map, &window);
+    //Block block(&map);
+    Block *block = Block::newBlock();
+    observerCLASS observer(block, &map, &window);
 	
 	clock.restart();
 	observer.gameStart();
 	while (window.isOpen())
 	{
 		while (window.pollEvent(event))
-			if (event.type == Event::Closed || (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape)) { observer.gameOver(); break; }
+            if (event.type == Event::Closed ||
+               (event.type == Event::KeyPressed && event.key.code == Keyboard::Escape))
+            {
+                observer.gameOver();
+                break;
+            }
 	
 		
-		if (event.type == Event::KeyPressed) observer.keycheck(event.key.code, clock.getElapsedTime().asMilliseconds());
+        if (event.type == Event::KeyPressed)
+            observer.keycheck(event.key.code, clock.getElapsedTime().asMilliseconds());
 		if (observer.timecheck(clock.getElapsedTime().asMilliseconds()))
 		{
 			observer.mapshift();
