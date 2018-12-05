@@ -3,6 +3,7 @@
 #include "mapCLASS.h"
 #include "Block.h"
 #include "observerCLASS.h"
+#include "Viewer.h"
 using namespace sf;
 
 int main()
@@ -13,12 +14,13 @@ int main()
 	Clock clock;
 	
 	mapCLASS map(&window);
-    //Block block(&map);
-    Block *block = Block::newBlock();
-    observerCLASS observer(block, &map, &window);
+    //Block *block(map);
+	Block block;
+	Viewer viewer(&block, &map, &window);
+    observerCLASS observer(&block, &map, &window, &viewer);
 	
-	clock.restart();
 	observer.gameStart();
+	clock.restart();
 	while (window.isOpen())
 	{
 		while (window.pollEvent(event))
@@ -29,16 +31,16 @@ int main()
                 break;
             }
 	
-		
         if (event.type == Event::KeyPressed)
             observer.keycheck(event.key.code, clock.getElapsedTime().asMilliseconds());
 		if (observer.timecheck(clock.getElapsedTime().asMilliseconds()))
 		{
-			observer.mapshift();
+			observer.shift();
 			clock.restart();
 
 			window.clear();
-			map.draw();
+			viewer.mapDraw();
+			viewer.blockDraw();
 			window.display();
 		}
 	}

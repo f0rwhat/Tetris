@@ -2,56 +2,64 @@
 #define MAPCLASS_H
 #include <SFML/Graphics.hpp>
 
-
 using namespace sf;
-
-const int N = 21, M = 12;
 
 class mapCLASS
 {
 	RenderWindow *window;
-public:
-	int map[N][M];
+	int N = 20, M = 10;
+	int **map;
 
+public:
 	mapCLASS(RenderWindow *window)
 	{
-		for (int i = 0; i < N-1; i++)
-			for (int j = 1; j < M-1; j++)
-				map[i][j] = 0;
+		map = new int*[N];
 		for (int i = 0; i < N; i++)
 		{
-			map[i][0] = -1;
-			map[i][M - 1] = -1;
+			map[i] = new int[M];
+			for (int j = 0; j < M ; j++)
+				map[i][j] = 0;
 		}
-		for (int j = 0; j < M; j++)
-			map[N - 1][j] = -1;
 		this->window = window;
 	}
 
-	void draw()
+	int filled(int j, int i)
 	{
-		RectangleShape shape;
-		shape.setSize(Vector2f(20, 20));
-		shape.setOrigin(Vector2f(0, 0));
-		shape.setOutlineThickness(1);
-		shape.setOutlineColor(Color::Black);
-		for (int i = 0; i < N-1; i++)
-			for (int j = 1; j < M-1; j++)
-			{
-				switch (map[i][j])
-				{
-					case 0:shape.setFillColor(Color::Black); break;
-					case 1:shape.setFillColor(Color::Red); break;
-					case 2:shape.setFillColor(Color::Blue); break;
-					case 3:shape.setFillColor(Color::Green); break;
-					case 4:shape.setFillColor(Color::White); break;
-					case 5:shape.setFillColor(Color::Cyan); break;
-					case 6:shape.setFillColor(Color::Magenta); break;
-				}
-				shape.setPosition(Vector2f(20 * j-20, 20 * i));
-				window->draw(shape);
-			}
+		if (j < 0 || j >= M || i < 0 || i >= N) return 1;
+		if (map[i][j] == 0) return 0;
+		return 1;
 	}
 
+	void fill(int j, int i, int color)
+	{
+		map[i][j] = color;
+	}
+
+	int getColor(int i, int j)
+	{
+		return map[i][j];
+	}
+
+	Vector2i getMatrixSize()
+	{
+		return Vector2i(N, M);
+	}
+
+	void mapstack()
+	{
+		for (int i = N - 1; i > 0; i--)
+		{
+			bool check = true;
+			for (int j = 1; j < M - 1; j++)
+				if (map[i][j] == 0) check = false;
+			if (check)
+			{
+				for (int z = i; z > 0; z--)
+					for (int j = 1; j < M - 1; j++)
+						map[z][j] = map[z - 1][j];
+				i++;
+			}
+		}
+	}
 };
 #endif

@@ -4,6 +4,7 @@
 #include <iostream>
 #include "Block.h"
 #include "mapCLASS.h"
+#include "Viewer.h"
 
 using namespace sf;
 const int standart = 250, speed = 25;
@@ -13,20 +14,21 @@ class observerCLASS
 	RenderWindow *window;
 	Block *block;
 	mapCLASS *map;
+	Viewer *viewer;
 	float timelimiter = standart;
 public:
 
-	observerCLASS(Block *block, mapCLASS *map, RenderWindow *window)
+	observerCLASS(Block *block, mapCLASS *map, RenderWindow *window, Viewer *viewer)
 	{
 		this->block = block;
 		this->map = map;
 		this->window = window;
+		this->viewer = viewer;
 	}
 
 	void gameStart()
 	{
 		block->newBlock();
-		blockDraw();
 	}
 
 	void gameOver()
@@ -35,59 +37,26 @@ public:
 		window->close();
 	}
 
-	void blockErase()
-	{
-		for (int i = 0; i < block->N; i++)
-			map->map[block->parts[i].Y][block->parts[i].X] = 0;
-		
-	}
-
-	void blockDraw()
-	{
-		for (int i = 0; i < block->N; i++)
-            map->map[block->parts[i].Y][block->parts[i].X] = block->color_;
-	}
-
 	int checkOver()
 	{
 		for (int i = 0; i < block->N; i++)
-			if (block->parts[i].incheckDown && !(map->map[block->parts[i].Y + 1][block->parts[i].X] == 0))
+			if (map->filled(block->parts[i].X, block->parts[i].Y + 1))
 				if (block->parts[i].Y == 0) return 1; 
 		return 0;
 	}
 
-	void mapshift()
+	void shift()
 	{
-		if (block->parts != NULL)
+		if (!block->move(Keyboard::Down, map))
 		{
-			blockErase();
-			if (!block->move(Keyboard::Down))
-				if (checkOver()) gameOver();
-				else
-				{
-					blockDraw();
-					mapstack();
-					block->newBlock();
-					blockDraw();
-				}
-			else blockDraw();
-		}
-	}
-
-	void mapstack()
-	{
-		for (int i = N - 2; i > 0; i--)
-		{
-			bool check = true;
-			for (int j = 1; j < M - 1; j++)
-				if (map->map[i][j] == 0) check = false;
-			if (check)
+			for (int i = 0; i < block->N; i++)
+				map->fill(block->parts[i].X, block->parts[i].Y, block->color_);
+			if (!checkOver())
 			{
-				for (int z = i; z > 0; z--)
-					for (int j = 1; j < M - 1; j++)
-						map->map[z][j] = map->map[z - 1][j];
-				i++;
+				map->mapstack();
+				block->newBlock();
 			}
+			else gameOver();
 		}
 	}
 
@@ -99,32 +68,16 @@ public:
 			timelimiter = speed;
 			break;
 		case Keyboard::Left:
+		case Keyboard::Right:
+		case Keyboard::Up:
 			if (timecheck(currenttime)) 
 			{ 
-				blockErase();
-				block->move(Keyboard::Left); 
-				blockDraw();
-			}
-			break;
-		case Keyboard::Right:
-			if (timecheck(currenttime))
-			{
-				blockErase();
-				block->move(Keyboard::Right);
-				blockDraw();
-			}
-			break;
-		case Keyboard::Up:
-			if (timecheck(currenttime))
-			{
-				blockErase();
-				block->turn();
-				blockDraw();
+				block->move(key, map); 
 			}
 			break;
 		}
 	}
-
+	
 	int timecheck(float currenttime)
 	{
 		if (timelimiter < currenttime) return 1;
