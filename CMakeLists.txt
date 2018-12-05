@@ -6,11 +6,12 @@ set (CMAKE_CXX_STANDARD 14)
 set (EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin)
 
 set(HEADERS 
-		src/blockCLASS.h
+                src/Block.h
 		src/mapCLASS.h
 		src/observerCLASS.h)
 
 set(SOURCES	
+                src/Block.cpp
 		src/main.cpp)
 
 include_directories(external/include)
@@ -19,4 +20,4 @@ link_directories(external/lib/SFML)
 add_definitions(-DSFML_STATIC)
 add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
 
-target_link_libraries(Tetris sfml-graphics-s sfml-window-s sfml-main sfml-system-s opengl32 freetype winmm gdi32)
+target_link_libraries(Tetris sfml-graphics-s sfml-window-s sfml-system-s opengl32 freetype winmm gdi32)
